@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'dart:math' as math;
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'note.freezed.dart';
@@ -29,16 +33,10 @@ class NoteHelper {
     return '${noteNames[noteIndex]}$octave';
   }
 
-  /// Convert MIDI number to frequency in Hz
-  static double midiToFrequency(int midi) {
-    return 440.0 * (1 << ((midi - 69) ~/ 12)).toDouble() *
-        _pow2((midi - 69) % 12 / 12.0);
-  }
-
-  static double _pow2(double exp) {
-    if (exp == 0) return 1.0;
-    return double.parse(
-        (1 * (exp * 0.693147).toDouble()).toStringAsFixed(10));
+  /// Convert MIDI number to frequency in Hz using equal temperament.
+  /// Formula: 440.0 * 2^((midi - 69) / 12)
+  static double midiToFrequency(int midiNote) {
+    return pow(2.0, (midiNote - 69) / 12.0).toDouble() * 440.0;
   }
 
   /// Create a Note from MIDI number
