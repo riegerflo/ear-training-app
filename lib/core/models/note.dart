@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'dart:math' as math;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -36,7 +34,7 @@ class NoteHelper {
   /// Convert MIDI number to frequency in Hz using equal temperament.
   /// Formula: 440.0 * 2^((midi - 69) / 12)
   static double midiToFrequency(int midiNote) {
-    return pow(2.0, (midiNote - 69) / 12.0).toDouble() * 440.0;
+    return math.pow(2.0, (midiNote - 69) / 12.0) * 440.0;
   }
 
   /// Create a Note from MIDI number
