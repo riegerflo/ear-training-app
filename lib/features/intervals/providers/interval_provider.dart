@@ -2,9 +2,10 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/models/exercise.dart';
+import '../../../core/services/score_service.dart';
 import '../models/interval_model.dart';
 
-/// State for the interval exercise.
 class IntervalExerciseState {
   final Interval currentInterval;
   final int rootMidi;
@@ -49,26 +50,21 @@ class IntervalExerciseState {
   }
 }
 
-/// Notifier for the interval exercise.
-class IntervalExerciseNotifier extends StateNotifier<IntervalExerciseState> {
+class IntervalExerciseNotifier
+    extends AutoDisposeNotifier<IntervalExerciseState> {
   final Random _random = Random();
 
-  IntervalExerciseNotifier() : super(_generateQuestion(0, 0, const Random()));
+  @override
+  IntervalExerciseState build() => _generateQuestion(0, 0);
 
-  static IntervalExerciseState _generateQuestion(
-      int score, int total, Random random) {
+  IntervalExerciseState _generateQuestion(int score, int total) {
     final correctInterval =
-        Interval.allIntervals[random.nextInt(Interval.allIntervals.length)];
-
-    // Root note in C3–C5 range (MIDI 48–72)
-    final rootMidi = 48 + random.nextInt(25);
-
-    // Pick 3 wrong answers (no duplicates, no correct answer)
+        Interval.allIntervals[_random.nextInt(Interval.allIntervals.length)];
+    final rootMidi = 48 + _random.nextInt(25); // C3–C5
     final wrong = List<Interval>.from(Interval.allIntervals)
       ..remove(correctInterval)
-      ..shuffle(random);
-    final choices = [...wrong.take(3), correctInterval]..shuffle(random);
-
+      ..shuffle(_random);
+    final choices = [...wrong.take(3), correctInterval]..shuffle(_random);
     return IntervalExerciseState(
       currentInterval: correctInterval,
       rootMidi: rootMidi,
@@ -78,10 +74,14 @@ class IntervalExerciseNotifier extends StateNotifier<IntervalExerciseState> {
     );
   }
 
-  /// Submit an answer.
   void answer(Interval chosen) {
     if (state.answered) return;
     final isCorrect = chosen == state.currentInterval;
+    // Fire-and-forget – UI updates immediately; DB write happens in background.
+    ref.read(scoreServiceProvider).recordAnswer(
+          type: ExerciseType.interval,
+          correct: isCorrect,
+        );
     state = state.copyWith(
       selectedAnswer: () => chosen,
       answered: true,
@@ -90,14 +90,12 @@ class IntervalExerciseNotifier extends StateNotifier<IntervalExerciseState> {
     );
   }
 
-  /// Advance to the next question.
-  void next() {
-    state =
-        _generateQuestion(state.score, state.totalAnswered, _random);
-  }
+  void next() => state = _generateQuestion(state.score, state.totalAnswered);
+
+  void reset() => state = _generateQuestion(0, 0);
 }
 
-final intervalExerciseProvider =
-    StateNotifierProvider<IntervalExerciseNotifier, IntervalExerciseState>(
-  (ref) => IntervalExerciseNotifier(),
+final intervalExerciseProvider = NotifierProvider.autoDispose<
+    IntervalExerciseNotifier, IntervalExerciseState>(
+  IntervalExerciseNotifier.new,
 );
