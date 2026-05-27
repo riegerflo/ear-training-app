@@ -16,7 +16,7 @@ class AppTheme {
           seedColor: primaryColor,
           brightness: Brightness.light,
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -45,7 +45,7 @@ class AppTheme {
         ),
         scaffoldBackgroundColor: backgroundColor,
         cardColor: cardColor,
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           color: cardColor,
           elevation: 2,
           shape: RoundedRectangleBorder(
