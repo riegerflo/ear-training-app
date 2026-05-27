@@ -14,7 +14,7 @@ class UserProgress {
   late int correctAttempts;
   late int currentStreak;
   late int longestStreak;
-  late DateTime lastPracticed;
+  late DateTime? lastPracticed;
 
   double get accuracy =>
       totalAttempts == 0 ? 0 : correctAttempts / totalAttempts;
@@ -24,6 +24,6 @@ class UserProgress {
     this.correctAttempts = 0,
     this.currentStreak = 0,
     this.longestStreak = 0,
-    DateTime? lastPracticed,
-  }) : lastPracticed = lastPracticed ?? DateTime.now();
+    this.lastPracticed,
+  });
 }
