@@ -45,7 +45,7 @@ class ChordExerciseScreen extends ConsumerWidget {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) handleBack();
       },
       child: Scaffold(
@@ -76,7 +76,7 @@ class ChordExerciseScreen extends ConsumerWidget {
               const Spacer(),
               Icon(Icons.piano,
                   size: 80,
-                  color: theme.colorScheme.primary.withOpacity(0.7)),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.7)),
               const SizedBox(height: 16),
               Text(
                 'Welchen Akkord hörst du?',

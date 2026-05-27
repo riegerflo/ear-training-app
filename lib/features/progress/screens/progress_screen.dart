@@ -193,7 +193,7 @@ class _ProgressCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: summary.accuracy,
                 minHeight: 8,
-                backgroundColor: color.withOpacity(0.15),
+                backgroundColor: color.withValues(alpha: 0.15),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
@@ -202,7 +202,7 @@ class _ProgressCard extends StatelessWidget {
               Text(
                 'Zuletzt geübt: ${_formatDate(summary.lastPracticed!)}',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ],

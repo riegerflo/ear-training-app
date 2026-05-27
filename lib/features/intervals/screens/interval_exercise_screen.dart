@@ -45,7 +45,7 @@ class IntervalExerciseScreen extends ConsumerWidget {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) handleBack();
       },
       child: Scaffold(
@@ -78,7 +78,7 @@ class IntervalExerciseScreen extends ConsumerWidget {
               Icon(
                 Icons.music_note,
                 size: 80,
-                color: theme.colorScheme.primary.withOpacity(0.7),
+                color: theme.colorScheme.primary.withValues(alpha: 0.7),
               ),
               const SizedBox(height: 16),
               Text(
