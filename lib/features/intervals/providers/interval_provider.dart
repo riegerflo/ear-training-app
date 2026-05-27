@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/exercise.dart';
+import '../../../core/providers/difficulty_provider.dart';
 import '../../../core/services/score_service.dart';
 import '../models/interval_model.dart';
 
@@ -57,16 +58,47 @@ class IntervalExerciseNotifier
   @override
   IntervalExerciseState build() => _generateQuestion(0, 0);
 
+  static List<Interval> _intervalsForDifficulty(Difficulty d) {
+    return switch (d) {
+      Difficulty.beginner => [
+          Interval.allIntervals[0], // Prim
+          Interval.allIntervals[3], // Quarte
+          Interval.allIntervals[4], // Quinte
+          Interval.allIntervals[7], // Oktave
+        ],
+      Difficulty.intermediate => [
+          Interval.allIntervals[0], // Prim
+          Interval.allIntervals[2], // Terz
+          Interval.allIntervals[3], // Quarte
+          Interval.allIntervals[4], // Quinte
+          Interval.allIntervals[5], // Sexte
+          Interval.allIntervals[7], // Oktave
+        ],
+      Difficulty.advanced => Interval.allIntervals,
+    };
+  }
+
+  static int _rootRangeForDifficulty(Difficulty d) => switch (d) {
+        Difficulty.beginner => 13,     // C3–C4
+        Difficulty.intermediate => 19, // C3–G4
+        Difficulty.advanced => 25,     // C3–C5
+      };
+
   IntervalExerciseState _generateQuestion(int score, int total) {
-    final correctInterval =
-        Interval.allIntervals[_random.nextInt(Interval.allIntervals.length)];
-    final rootMidi = 48 + _random.nextInt(25); // C3–C5
-    final wrong = List<Interval>.from(Interval.allIntervals)
-      ..remove(correctInterval)
+    final difficulty = ref.read(difficultyProvider);
+    final pool = _intervalsForDifficulty(difficulty);
+    final rootRange = _rootRangeForDifficulty(difficulty);
+
+    final correct = pool[_random.nextInt(pool.length)];
+    final rootMidi = 48 + _random.nextInt(rootRange);
+    final wrong = List<Interval>.from(pool)
+      ..remove(correct)
       ..shuffle(_random);
-    final choices = [...wrong.take(3), correctInterval]..shuffle(_random);
+    // Show all available choices for the current difficulty.
+    final choices = [...wrong, correct]..shuffle(_random);
+
     return IntervalExerciseState(
-      currentInterval: correctInterval,
+      currentInterval: correct,
       rootMidi: rootMidi,
       choices: choices,
       score: score,
@@ -77,7 +109,6 @@ class IntervalExerciseNotifier
   void answer(Interval chosen) {
     if (state.answered) return;
     final isCorrect = chosen == state.currentInterval;
-    // Fire-and-forget – UI updates immediately; DB write happens in background.
     ref.read(scoreServiceProvider).recordAnswer(
           type: ExerciseType.interval,
           correct: isCorrect,
