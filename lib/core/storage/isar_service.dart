@@ -1,76 +1,64 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/exercise.dart';
 import '../models/user_progress.dart';
 
-/// Provider for the Isar database instance (overridden in main.dart)
-final isarProvider = Provider<Isar>((ref) {
-  throw UnimplementedError('isarProvider must be overridden in main()');
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError('sharedPreferencesProvider must be overridden in main()');
 });
 
-/// Service for UserProgress CRUD operations
 class ProgressRepository {
-  final Isar _isar;
+  final SharedPreferences _prefs;
 
-  ProgressRepository(this._isar);
+  ProgressRepository(this._prefs);
+
+  static String _key(ExerciseType type) => 'progress_${type.name}';
 
   Future<UserProgress?> getProgress(ExerciseType type) async {
-    return _isar.userProgresss
-        .filter()
-        .exerciseTypeEqualTo(type)
-        .findFirst();
+    final raw = _prefs.getString(_key(type));
+    if (raw == null) return null;
+    return UserProgress.fromJson(jsonDecode(raw) as Map<String, dynamic>);
   }
 
   Future<List<UserProgress>> getAllProgress() async {
-    return _isar.userProgresss.where().findAll();
+    final results = <UserProgress>[];
+    for (final type in ExerciseType.values) {
+      final p = await getProgress(type);
+      if (p != null) results.add(p);
+    }
+    return results;
   }
 
   Future<void> updateProgress({
     required ExerciseType type,
     required bool correct,
   }) async {
-    await _isar.writeTxn(() async {
-      var progress = await _isar.userProgresss
-          .filter()
-          .exerciseTypeEqualTo(type)
-          .findFirst();
+    var progress =
+        await getProgress(type) ?? UserProgress(exerciseType: type);
 
-      if (progress == null) {
-        progress = UserProgress();
-        progress.exerciseType = type;
-      }
+    final newStreak = correct ? progress.currentStreak + 1 : 0;
+    progress = progress.copyWith(
+      totalAttempts: progress.totalAttempts + 1,
+      correctAttempts: correct ? progress.correctAttempts + 1 : null,
+      currentStreak: newStreak,
+      longestStreak: newStreak > progress.longestStreak
+          ? newStreak
+          : progress.longestStreak,
+      lastPracticed: DateTime.now(),
+    );
 
-      progress.totalAttempts++;
-      if (correct) {
-        progress.correctAttempts++;
-        progress.currentStreak++;
-        if (progress.currentStreak > progress.longestStreak) {
-          progress.longestStreak = progress.currentStreak;
-        }
-      } else {
-        progress.currentStreak = 0;
-      }
-      progress.lastPracticed = DateTime.now();
-
-      await _isar.userProgresss.put(progress);
-    });
+    await _prefs.setString(_key(type), jsonEncode(progress.toJson()));
   }
 
   Future<void> resetProgress(ExerciseType type) async {
-    await _isar.writeTxn(() async {
-      final progress = await _isar.userProgresss
-          .filter()
-          .exerciseTypeEqualTo(type)
-          .findFirst();
-      if (progress != null) {
-        await _isar.userProgresss.delete(progress.id);
-      }
-    });
+    await _prefs.remove(_key(type));
   }
 }
 
 final progressRepositoryProvider = Provider<ProgressRepository>((ref) {
-  final isar = ref.watch(isarProvider);
-  return ProgressRepository(isar);
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return ProgressRepository(prefs);
 });
