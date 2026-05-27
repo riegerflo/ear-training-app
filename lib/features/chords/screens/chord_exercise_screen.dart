@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/audio/audio_service.dart';
+import '../../../shared/widgets/difficulty_selector.dart';
 import '../../../shared/widgets/session_summary_dialog.dart';
 import '../models/chord_model.dart';
 import '../providers/chord_provider.dart';
@@ -71,6 +72,7 @@ class ChordExerciseScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
+              const DifficultySelector(),
               const Spacer(),
               Icon(Icons.piano,
                   size: 80,

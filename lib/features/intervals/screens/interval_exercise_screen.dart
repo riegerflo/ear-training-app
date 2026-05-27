@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/audio/audio_service.dart';
+import '../../../shared/widgets/difficulty_selector.dart';
 import '../../../shared/widgets/session_summary_dialog.dart';
 import '../models/interval_model.dart';
 import '../providers/interval_provider.dart';
@@ -72,6 +73,7 @@ class IntervalExerciseScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
+              const DifficultySelector(),
               const Spacer(),
               Icon(
                 Icons.music_note,
