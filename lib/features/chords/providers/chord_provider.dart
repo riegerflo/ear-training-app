@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/models/exercise.dart';
+import '../../../core/services/score_service.dart';
 import '../models/chord_model.dart';
 
 class ChordExerciseState {
@@ -48,20 +50,18 @@ class ChordExerciseState {
   }
 }
 
-class ChordExerciseNotifier extends StateNotifier<ChordExerciseState> {
+class ChordExerciseNotifier extends AutoDisposeNotifier<ChordExerciseState> {
   final Random _random = Random();
 
-  ChordExerciseNotifier()
-      : super(_generateQuestion(0, 0, const Random()));
+  @override
+  ChordExerciseState build() => _generateQuestion(0, 0);
 
-  static ChordExerciseState _generateQuestion(
-      int score, int total, Random random) {
+  ChordExerciseState _generateQuestion(int score, int total) {
     final correct =
-        ChordType.allChords[random.nextInt(ChordType.allChords.length)];
-    final rootMidi = 48 + random.nextInt(13); // C3–C4
-
-    final choices = List<ChordType>.from(ChordType.allChords)..shuffle(random);
-
+        ChordType.allChords[_random.nextInt(ChordType.allChords.length)];
+    final rootMidi = 48 + _random.nextInt(13); // C3–C4
+    final choices = List<ChordType>.from(ChordType.allChords)
+      ..shuffle(_random);
     return ChordExerciseState(
       currentChord: correct,
       rootMidi: rootMidi,
@@ -74,6 +74,10 @@ class ChordExerciseNotifier extends StateNotifier<ChordExerciseState> {
   void answer(ChordType chosen) {
     if (state.answered) return;
     final isCorrect = chosen == state.currentChord;
+    ref.read(scoreServiceProvider).recordAnswer(
+          type: ExerciseType.chord,
+          correct: isCorrect,
+        );
     state = state.copyWith(
       selectedAnswer: () => chosen,
       answered: true,
@@ -82,12 +86,12 @@ class ChordExerciseNotifier extends StateNotifier<ChordExerciseState> {
     );
   }
 
-  void next() {
-    state = _generateQuestion(state.score, state.totalAnswered, _random);
-  }
+  void next() => state = _generateQuestion(state.score, state.totalAnswered);
+
+  void reset() => state = _generateQuestion(0, 0);
 }
 
 final chordExerciseProvider =
-    StateNotifierProvider<ChordExerciseNotifier, ChordExerciseState>(
-  (ref) => ChordExerciseNotifier(),
+    NotifierProvider.autoDispose<ChordExerciseNotifier, ChordExerciseState>(
+  ChordExerciseNotifier.new,
 );

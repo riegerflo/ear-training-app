@@ -33,7 +33,10 @@ class HomeScreen extends ConsumerWidget {
                 summaries.when(
                   data: (list) => _OverallStats(summaries: list),
                   loading: () => const SizedBox(height: 80, child: Center(child: CircularProgressIndicator())),
-                  error: (_, __) => const SizedBox.shrink(),
+                  error: (e, _) => Text(
+                    'Fortschritt konnte nicht geladen werden.',
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(

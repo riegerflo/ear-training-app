@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/models/exercise.dart';
+import '../../../core/services/score_service.dart';
 import '../models/scale_model.dart';
 
 class ScaleExerciseState {
@@ -48,19 +50,18 @@ class ScaleExerciseState {
   }
 }
 
-class ScaleExerciseNotifier extends StateNotifier<ScaleExerciseState> {
+class ScaleExerciseNotifier extends AutoDisposeNotifier<ScaleExerciseState> {
   final Random _random = Random();
 
-  ScaleExerciseNotifier() : super(_generateQuestion(0, 0, const Random()));
+  @override
+  ScaleExerciseState build() => _generateQuestion(0, 0);
 
-  static ScaleExerciseState _generateQuestion(
-      int score, int total, Random random) {
+  ScaleExerciseState _generateQuestion(int score, int total) {
     final correct =
-        ScaleType.allScales[random.nextInt(ScaleType.allScales.length)];
-    final rootMidi = 48 + random.nextInt(13); // C3–C4
-
-    final choices = List<ScaleType>.from(ScaleType.allScales)..shuffle(random);
-
+        ScaleType.allScales[_random.nextInt(ScaleType.allScales.length)];
+    final rootMidi = 48 + _random.nextInt(13); // C3–C4
+    final choices = List<ScaleType>.from(ScaleType.allScales)
+      ..shuffle(_random);
     return ScaleExerciseState(
       currentScale: correct,
       rootMidi: rootMidi,
@@ -73,6 +74,10 @@ class ScaleExerciseNotifier extends StateNotifier<ScaleExerciseState> {
   void answer(ScaleType chosen) {
     if (state.answered) return;
     final isCorrect = chosen == state.currentScale;
+    ref.read(scoreServiceProvider).recordAnswer(
+          type: ExerciseType.scale,
+          correct: isCorrect,
+        );
     state = state.copyWith(
       selectedAnswer: () => chosen,
       answered: true,
@@ -81,12 +86,12 @@ class ScaleExerciseNotifier extends StateNotifier<ScaleExerciseState> {
     );
   }
 
-  void next() {
-    state = _generateQuestion(state.score, state.totalAnswered, _random);
-  }
+  void next() => state = _generateQuestion(state.score, state.totalAnswered);
+
+  void reset() => state = _generateQuestion(0, 0);
 }
 
 final scaleExerciseProvider =
-    StateNotifierProvider<ScaleExerciseNotifier, ScaleExerciseState>(
-  (ref) => ScaleExerciseNotifier(),
+    NotifierProvider.autoDispose<ScaleExerciseNotifier, ScaleExerciseState>(
+  ScaleExerciseNotifier.new,
 );
