@@ -1,43 +1,49 @@
 import 'dart:math' as math;
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+class Note {
+  final String name;
+  final int midiNumber;
+  final double frequency;
+  final Duration? duration;
 
-part 'note.freezed.dart';
-part 'note.g.dart';
+  const Note({
+    required this.name,
+    required this.midiNumber,
+    required this.frequency,
+    this.duration,
+  });
 
-@freezed
-class Note with _$Note {
-  const factory Note({
-    required String name,
-    required int midiNumber,
-    required double frequency,
+  Note copyWith({
+    String? name,
+    int? midiNumber,
+    double? frequency,
     Duration? duration,
-  }) = _Note;
-
-  factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
+  }) {
+    return Note(
+      name: name ?? this.name,
+      midiNumber: midiNumber ?? this.midiNumber,
+      frequency: frequency ?? this.frequency,
+      duration: duration ?? this.duration,
+    );
+  }
 }
 
-/// Helper class for note calculations
 class NoteHelper {
   static const List<String> noteNames = [
     'C', 'C#', 'D', 'D#', 'E', 'F',
     'F#', 'G', 'G#', 'A', 'A#', 'B'
   ];
 
-  /// Convert MIDI number to note name (e.g., 60 -> 'C4')
   static String midiToName(int midi) {
     final octave = (midi ~/ 12) - 1;
     final noteIndex = midi % 12;
     return '${noteNames[noteIndex]}$octave';
   }
 
-  /// Convert MIDI number to frequency in Hz using equal temperament.
-  /// Formula: 440.0 * 2^((midi - 69) / 12)
   static double midiToFrequency(int midiNote) {
-    return math.pow(2.0, (midiNote - 69) / 12.0) * 440.0;
+    return (math.pow(2.0, (midiNote - 69) / 12.0) * 440.0).toDouble();
   }
 
-  /// Create a Note from MIDI number
   static Note fromMidi(int midi, {Duration? duration}) {
     return Note(
       name: midiToName(midi),
@@ -47,7 +53,6 @@ class NoteHelper {
     );
   }
 
-  /// Common notes
   static Note get middleC => fromMidi(60);
-  static Note get a4 => fromMidi(69); // 440 Hz
+  static Note get a4 => fromMidi(69);
 }

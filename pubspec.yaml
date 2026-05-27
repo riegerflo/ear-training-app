@@ -13,7 +13,6 @@ dependencies:
 
   # State Management
   flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
 
   # Navigation
   go_router: ^14.6.3
@@ -24,27 +23,15 @@ dependencies:
   # Audio
   just_audio: ^0.9.42
 
-  # Code Generation
-  freezed_annotation: ^2.4.0
-  json_annotation: ^4.9.0
-
   # UI
   flutter_animate: ^4.5.0
   percent_indicator: ^4.2.4
-
-  # Utilities
-  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
 
-  # Code Generation
-  build_runner: ^2.4.13
-  freezed: ^2.4.0
-  json_serializable: ^6.8.0
-  riverpod_generator: ^2.4.0
 
 flutter:
   uses-material-design: true
