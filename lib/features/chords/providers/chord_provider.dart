@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/exercise.dart';
+import '../../../core/providers/difficulty_provider.dart';
 import '../../../core/services/score_service.dart';
 import '../models/chord_model.dart';
 
@@ -56,12 +57,33 @@ class ChordExerciseNotifier extends AutoDisposeNotifier<ChordExerciseState> {
   @override
   ChordExerciseState build() => _generateQuestion(0, 0);
 
+  static List<ChordType> _chordsForDifficulty(Difficulty d) {
+    return switch (d) {
+      Difficulty.beginner => [ChordType.major, ChordType.minor],
+      Difficulty.intermediate => [
+          ChordType.major,
+          ChordType.minor,
+          ChordType.dominant7,
+        ],
+      Difficulty.advanced => ChordType.allChords,
+    };
+  }
+
+  static int _rootRangeForDifficulty(Difficulty d) => switch (d) {
+        Difficulty.beginner => 5,      // C3–E3 (very familiar pitches)
+        Difficulty.intermediate => 9,  // C3–A3
+        Difficulty.advanced => 13,     // C3–C4
+      };
+
   ChordExerciseState _generateQuestion(int score, int total) {
-    final correct =
-        ChordType.allChords[_random.nextInt(ChordType.allChords.length)];
-    final rootMidi = 48 + _random.nextInt(13); // C3–C4
-    final choices = List<ChordType>.from(ChordType.allChords)
-      ..shuffle(_random);
+    final difficulty = ref.read(difficultyProvider);
+    final pool = _chordsForDifficulty(difficulty);
+    final rootRange = _rootRangeForDifficulty(difficulty);
+
+    final correct = pool[_random.nextInt(pool.length)];
+    final rootMidi = 48 + _random.nextInt(rootRange);
+    final choices = List<ChordType>.from(pool)..shuffle(_random);
+
     return ChordExerciseState(
       currentChord: correct,
       rootMidi: rootMidi,

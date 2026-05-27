@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/exercise.dart';
+import '../../../core/providers/difficulty_provider.dart';
 import '../../../core/services/score_service.dart';
 import '../models/scale_model.dart';
 
@@ -56,12 +57,33 @@ class ScaleExerciseNotifier extends AutoDisposeNotifier<ScaleExerciseState> {
   @override
   ScaleExerciseState build() => _generateQuestion(0, 0);
 
+  static List<ScaleType> _scalesForDifficulty(Difficulty d) {
+    return switch (d) {
+      Difficulty.beginner => [ScaleType.major, ScaleType.naturalMinor],
+      Difficulty.intermediate => [
+          ScaleType.major,
+          ScaleType.naturalMinor,
+          ScaleType.majorPentatonic,
+        ],
+      Difficulty.advanced => ScaleType.allScales,
+    };
+  }
+
+  static int _rootRangeForDifficulty(Difficulty d) => switch (d) {
+        Difficulty.beginner => 5,      // C3–E3
+        Difficulty.intermediate => 9,  // C3–A3
+        Difficulty.advanced => 13,     // C3–C4
+      };
+
   ScaleExerciseState _generateQuestion(int score, int total) {
-    final correct =
-        ScaleType.allScales[_random.nextInt(ScaleType.allScales.length)];
-    final rootMidi = 48 + _random.nextInt(13); // C3–C4
-    final choices = List<ScaleType>.from(ScaleType.allScales)
-      ..shuffle(_random);
+    final difficulty = ref.read(difficultyProvider);
+    final pool = _scalesForDifficulty(difficulty);
+    final rootRange = _rootRangeForDifficulty(difficulty);
+
+    final correct = pool[_random.nextInt(pool.length)];
+    final rootMidi = 48 + _random.nextInt(rootRange);
+    final choices = List<ScaleType>.from(pool)..shuffle(_random);
+
     return ScaleExerciseState(
       currentScale: correct,
       rootMidi: rootMidi,
