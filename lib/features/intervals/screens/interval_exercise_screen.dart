@@ -147,6 +147,7 @@ class _AnswerButton extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _AnswerButton({
+    super.key,
     required this.interval,
     required this.state,
     required this.onTap,
@@ -185,7 +186,7 @@ class _AnswerButton extends StatelessWidget {
 class _FeedbackBanner extends StatelessWidget {
   final bool isCorrect;
 
-  const _FeedbackBanner({required this.isCorrect});
+  const _FeedbackBanner({super.key, required this.isCorrect});
 
   @override
   Widget build(BuildContext context) {

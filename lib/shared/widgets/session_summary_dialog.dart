@@ -122,7 +122,7 @@ class _StatBox extends StatelessWidget {
   final String value;
   final Color? color;
 
-  const _StatBox({required this.label, required this.value, this.color});
+  const _StatBox({super.key, required this.label, required this.value, this.color});
 
   @override
   Widget build(BuildContext context) {

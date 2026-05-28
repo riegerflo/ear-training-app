@@ -80,6 +80,7 @@ class _OverallCard extends StatelessWidget {
   final double accuracy;
 
   const _OverallCard({
+    super.key,
     required this.totalAttempts,
     required this.totalCorrect,
     required this.accuracy,
@@ -135,7 +136,7 @@ class _OverallCard extends StatelessWidget {
 class _ProgressCard extends StatelessWidget {
   final UserProgressSummary summary;
 
-  const _ProgressCard({required this.summary});
+  const _ProgressCard({super.key, required this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +222,7 @@ class _Stat extends StatelessWidget {
   final String label;
   final String value;
 
-  const _Stat({required this.label, required this.value});
+  const _Stat({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {

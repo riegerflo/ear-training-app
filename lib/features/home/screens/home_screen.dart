@@ -115,7 +115,7 @@ class HomeScreen extends ConsumerWidget {
 class _OverallStats extends StatelessWidget {
   final List<UserProgressSummary> summaries;
 
-  const _OverallStats({required this.summaries});
+  const _OverallStats({super.key, required this.summaries});
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +226,7 @@ class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
 
-  const _MiniStat({required this.label, required this.value});
+  const _MiniStat({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +251,7 @@ class _ExerciseCard extends StatelessWidget {
   final UserProgressSummary? summary;
 
   const _ExerciseCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
