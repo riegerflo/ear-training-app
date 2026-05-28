@@ -25,7 +25,19 @@ jobs:
         run: flutter pub get
 
       - name: Analyze
-        run: flutter analyze --no-pub
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          flutter analyze --no-pub 2>&1 | tee /tmp/analyze.txt
+          EXIT_CODE=$?
+          if [ "$EXIT_CODE" != "0" ] && [ -n "${{ github.event.pull_request.number }}" ]; then
+            BODY=$(printf '## flutter analyze failed\n```\n%s\n```' "$(tail -80 /tmp/analyze.txt)")
+            gh pr comment ${{ github.event.pull_request.number }} \
+              --repo ${{ github.repository }} \
+              --body "$BODY" || true
+          fi
+          exit $EXIT_CODE
 
       - name: Run tests
         run: flutter test --no-pub
