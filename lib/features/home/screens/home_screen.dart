@@ -49,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
                 Text(
                   'Wähle eine Übungskategorie',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -115,7 +115,7 @@ class HomeScreen extends ConsumerWidget {
 class _OverallStats extends StatelessWidget {
   final List<UserProgressSummary> summaries;
 
-  const _OverallStats({required this.summaries});
+  const _OverallStats({super.key, required this.summaries});
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +213,7 @@ class _OverallStats extends StatelessWidget {
               value: overallAccuracy,
               minHeight: 8,
               backgroundColor:
-                  theme.colorScheme.onPrimaryContainer.withOpacity(0.2),
+                  theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.2),
             ),
           ),
         ],
@@ -226,7 +226,7 @@ class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
 
-  const _MiniStat({required this.label, required this.value});
+  const _MiniStat({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +251,7 @@ class _ExerciseCard extends StatelessWidget {
   final UserProgressSummary? summary;
 
   const _ExerciseCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -280,7 +281,7 @@ class _ExerciseCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
+                      color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: color, size: 24),
@@ -307,7 +308,7 @@ class _ExerciseCard extends StatelessWidget {
                         ? '${summary!.totalAttempts} Versuche'
                         : subtitle,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   if (hasData) ...[
@@ -317,7 +318,7 @@ class _ExerciseCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: summary!.accuracy,
                         minHeight: 4,
-                        backgroundColor: color.withOpacity(0.15),
+                        backgroundColor: color.withValues(alpha: 0.15),
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                       ),
                     ),

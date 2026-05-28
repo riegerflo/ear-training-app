@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/audio/audio_service.dart';
+import '../../../shared/widgets/difficulty_selector.dart';
 import '../../../shared/widgets/session_summary_dialog.dart';
 import '../models/scale_model.dart';
 import '../providers/scale_provider.dart';
@@ -44,7 +45,7 @@ class ScaleExerciseScreen extends ConsumerWidget {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) handleBack();
       },
       child: Scaffold(
@@ -71,10 +72,11 @@ class ScaleExerciseScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
+              const DifficultySelector(),
               const Spacer(),
               Icon(Icons.queue_music,
                   size: 80,
-                  color: theme.colorScheme.primary.withOpacity(0.7)),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.7)),
               const SizedBox(height: 16),
               Text(
                 'Welche Skala hörst du?',
@@ -135,7 +137,7 @@ class _AnswerButton extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _AnswerButton(
-      {required this.scale, required this.state, required this.onTap});
+      {super.key, required this.scale, required this.state, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +168,7 @@ class _AnswerButton extends StatelessWidget {
 
 class _FeedbackBanner extends StatelessWidget {
   final bool isCorrect;
-  const _FeedbackBanner({required this.isCorrect});
+  const _FeedbackBanner({super.key, required this.isCorrect});
 
   @override
   Widget build(BuildContext context) {

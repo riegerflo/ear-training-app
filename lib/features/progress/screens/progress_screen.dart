@@ -80,6 +80,7 @@ class _OverallCard extends StatelessWidget {
   final double accuracy;
 
   const _OverallCard({
+    super.key,
     required this.totalAttempts,
     required this.totalCorrect,
     required this.accuracy,
@@ -135,7 +136,7 @@ class _OverallCard extends StatelessWidget {
 class _ProgressCard extends StatelessWidget {
   final UserProgressSummary summary;
 
-  const _ProgressCard({required this.summary});
+  const _ProgressCard({super.key, required this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +194,7 @@ class _ProgressCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: summary.accuracy,
                 minHeight: 8,
-                backgroundColor: color.withOpacity(0.15),
+                backgroundColor: color.withValues(alpha: 0.15),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
@@ -202,7 +203,7 @@ class _ProgressCard extends StatelessWidget {
               Text(
                 'Zuletzt geübt: ${_formatDate(summary.lastPracticed!)}',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ],
@@ -221,7 +222,7 @@ class _Stat extends StatelessWidget {
   final String label;
   final String value;
 
-  const _Stat({required this.label, required this.value});
+  const _Stat({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {

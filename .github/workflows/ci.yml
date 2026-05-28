@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Analyze & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Print Flutter & Dart version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          flutter analyze --no-pub 2>&1 | tee /tmp/analyze.txt
+          EXIT_CODE=$?
+          if [ "$EXIT_CODE" != "0" ] && [ -n "${{ github.event.pull_request.number }}" ]; then
+            BODY=$(printf '## flutter analyze failed\n```\n%s\n```' "$(tail -80 /tmp/analyze.txt)")
+            gh pr comment ${{ github.event.pull_request.number }} \
+              --repo ${{ github.repository }} \
+              --body "$BODY" || true
+          fi
+          exit $EXIT_CODE
+
+      - name: Run tests
+        run: flutter test --no-pub
